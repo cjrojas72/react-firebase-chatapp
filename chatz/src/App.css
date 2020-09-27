@@ -48,6 +48,17 @@ body {
   align-items: center;
 }
 
+.stackMsg > .time > p{
+  color: #909090;
+}
+
+.time{
+  display: flex;
+  justify-content: center;
+  font-size: small;
+  font-style: italic;
+}
+
 
 
 /* main::-webkit-scrollbar {

@@ -9,6 +9,9 @@ import 'firebase/auth';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 
+// moment dependencies 
+import moment from 'moment';
+
 firebase.initializeApp({
   apiKey: "AIzaSyD_YU0qnrrd8VLctSW9GyxQsagq-zX-6dQ",
   authDomain: "chatz-b7f42.firebaseapp.com",
@@ -103,14 +106,22 @@ function ChatRoom() {
 
 function MessageComp(props) {
   const { text, uid, photoURL } = props.message;
-  console.log(props.message);
+  // console.log(props.message);
+  let time = props.message.createAt;
+  const convertTime = moment.unix(time).format("dddd, MMMM, h:mm a");
+
+  console.log(convertTime);
+
 
   const messageSOR = uid === auth.currentUser.uid ? 'sent' : 'received';
 
   return (
-    <div className={`message ${messageSOR}`}>
-      <img src={photoURL} alt='some img' />
-      <p>{text}</p>
+    <div className="stackMsg">
+      <div className="time"><p>{convertTime}</p></div>
+      <div className={`message ${messageSOR}`}>
+        <img src={photoURL} alt='some img' />
+        <p>{text}</p>
+      </div>
     </div>
   )
 }
