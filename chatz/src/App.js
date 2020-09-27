@@ -47,7 +47,11 @@ function SignIn() {
   }
 
   return (
-    <button onClick={googleSignIn}>Sign in!</button>
+    <div className='center-div'>
+      <h1 style={{ fontSize: '50px', color: 'white' }}>Welcome to Chatz</h1>
+      <p>Sign in with a google account to begin chatting with the world!</p>
+      <button onClick={googleSignIn}>Sign in!</button>
+    </div>
   )
 };
 

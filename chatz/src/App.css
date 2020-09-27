@@ -42,7 +42,15 @@ body {
   flex-direction: column;
 }
 
-main::-webkit-scrollbar {
+.center-div{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+
+
+/* main::-webkit-scrollbar {
   width: 0.25rem;
 }
 
@@ -52,7 +60,7 @@ main::-webkit-scrollbar-track {
 
 main::-webkit-scrollbar-thumb {
   background: #6649b8;
-}
+} */
 
 form {
   position: fixed;
