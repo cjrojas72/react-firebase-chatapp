@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import './App.css';
 
 // firebase dependencies 
@@ -30,8 +30,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        {user ? <SignOut /> : console.log("hi")}
-        <button onClick={TestConnection}>Test Connection</button>
+        <SignOut />
       </header>
 
       <section>
@@ -53,49 +52,64 @@ function SignIn() {
 };
 
 function SignOut() {
-
   return auth.currentUser && (
-    <button onClick={() => auth.signOut}>Sign Out</button>
-  )
+    <button className="sign-out" onClick={() => auth.signOut()}>Sign Out</button>)
 };
 
 function ChatRoom() {
-  const ref_messages = firestore.collection('messages');
-  console.log(ref_messages);
-  const query = ref_messages.orderBy('createAt').limit(50);
+  const msgs_dbRef = firestore.collection('messages');
+  const query = msgs_dbRef.orderBy('createAt').limit(50);
 
   const [messages] = useCollectionData(query, { idField: 'id' });
 
+  const [formValue, setFormValue] = useState('');
+
+  const dummy = useRef()
+
+  const sendMessage = async (e) => {
+    e.preventDefault();
+    const { uid, photoURL } = auth.currentUser;
+
+    await msgs_dbRef.add({
+      text: formValue,
+      createAt: firebase.firestore.FieldValue.serverTimestamp(),
+      uid,
+      photoURL,
+    });
+
+    setFormValue('');
+
+    dummy.current.scrollIntoView({ behavior: 'smooth' });
+  }
+
   return (
     <>
-      <div><h1>You have a chat room</h1></div>
-      <div>
+      <div className='chatBox'>
         {messages && messages.map(msg => <MessageComp key={msg.id} message={msg} />)}
+        <div ref={dummy}></div>
       </div>
+
+      <form onSubmit={sendMessage}>
+        <input value={formValue} onChange={(e) => setFormValue(e.target.value)} />
+        <button type="submit">send</button>
+      </form>
     </>
   )
 };
 
 function MessageComp(props) {
-  const { text } = props.message;
+  const { text, uid, photoURL } = props.message;
   console.log(props.message);
 
+  const messageSOR = uid === auth.currentUser.uid ? 'sent' : 'received';
+
   return (
-    <p>{text}</p>
+    <div className={`message ${messageSOR}`}>
+      <img src={photoURL} alt='some img' />
+      <p>{text}</p>
+    </div>
   )
 }
 
-function TestConnection() {
-  firestore.collection("messages").add({
-    createAt: 'today',
-    text: 'testing',
-  })
-    .then(function (docRef) {
-      console.log("Document written with ID: ", docRef.id);
-    })
-    .catch(function (error) {
-      console.error("Error adding document: ", error);
-    });
-}
 
 export default App;
