@@ -24,13 +24,78 @@ const auth = firebase.auth();
 const firestore = firebase.firestore();
 
 function App() {
+
+  const [user] = useAuthState(auth);
+
   return (
     <div className="App">
       <header className="App-header">
-
+        {user ? <SignOut /> : console.log("hi")}
+        <button onClick={TestConnection}>Test Connection</button>
       </header>
+
+      <section>
+        {user ? <ChatRoom /> : <SignIn />}
+      </section>
     </div>
   );
+}
+
+function SignIn() {
+  const googleSignIn = () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider);
+  }
+
+  return (
+    <button onClick={googleSignIn}>Sign in!</button>
+  )
+};
+
+function SignOut() {
+
+  return auth.currentUser && (
+    <button onClick={() => auth.signOut}>Sign Out</button>
+  )
+};
+
+function ChatRoom() {
+  const ref_messages = firestore.collection('messages');
+  console.log(ref_messages);
+  const query = ref_messages.orderBy('createAt').limit(50);
+
+  const [messages] = useCollectionData(query, { idField: 'id' });
+
+  return (
+    <>
+      <div><h1>You have a chat room</h1></div>
+      <div>
+        {messages && messages.map(msg => <MessageComp key={msg.id} message={msg} />)}
+      </div>
+    </>
+  )
+};
+
+function MessageComp(props) {
+  const { text } = props.message;
+  console.log(props.message);
+
+  return (
+    <p>{text}</p>
+  )
+}
+
+function TestConnection() {
+  firestore.collection("messages").add({
+    createAt: 'today',
+    text: 'testing',
+  })
+    .then(function (docRef) {
+      console.log("Document written with ID: ", docRef.id);
+    })
+    .catch(function (error) {
+      console.error("Error adding document: ", error);
+    });
 }
 
 export default App;
