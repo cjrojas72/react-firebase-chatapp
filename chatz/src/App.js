@@ -28,7 +28,14 @@ const firestore = firebase.firestore();
 
 function App() {
 
+  React.useEffect(() => {
+    window.addEventListener("beforeunload", function (e) {
+      logOutStatus(auth.currentUser)
+    }, false);
+  });
+
   const [user] = useAuthState(auth);
+  console.log(user);
 
   return (
     <div className="App">
@@ -63,7 +70,26 @@ function SignOut() {
     <button className="sign-out" onClick={() => auth.signOut()}>Sign Out</button>)
 };
 
+function logStatus(user) {
+  const users_dbRef = firestore.collection('userOnline');
+  users_dbRef.doc(user).set({
+    online: true,
+    lastOnline: firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+
+function logOutStatus(user) {
+  const users_dbRef = firestore.collection('userOnline');
+  users_dbRef.doc(user).set({
+    online: false,
+    lastOnline: firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+
 function ChatRoom() {
+
+  logStatus(auth.currentUser.uid);
+
   const msgs_dbRef = firestore.collection('messages');
   const query = msgs_dbRef.orderBy('createAt').limit(50);
 
@@ -110,7 +136,7 @@ function MessageComp(props) {
   let time = props.message.createAt;
   const convertTime = moment.unix(time).format("dddd, MMMM, h:mm a");
 
-  console.log(convertTime);
+  // console.log(convertTime);
 
 
   const messageSOR = uid === auth.currentUser.uid ? 'sent' : 'received';
