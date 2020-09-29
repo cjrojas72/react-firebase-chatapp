@@ -28,12 +28,6 @@ const firestore = firebase.firestore();
 
 function App() {
 
-  React.useEffect(() => {
-    window.addEventListener("beforeunload", function (e) {
-      logOutStatus(auth.currentUser)
-    }, false);
-  });
-
   const [user] = useAuthState(auth);
   console.log(user);
 
@@ -87,6 +81,12 @@ function logOutStatus(user) {
 }
 
 function ChatRoom() {
+
+  React.useEffect(() => {
+    window.addEventListener("beforeunload", function (e) {
+      logOutStatus(auth.currentUser.uid);
+    }, false);
+  });
 
   logStatus(auth.currentUser.uid);
 
