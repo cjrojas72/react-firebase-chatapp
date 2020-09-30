@@ -29,12 +29,13 @@ const firestore = firebase.firestore();
 function App() {
 
   const [user] = useAuthState(auth);
-  console.log(user);
+  // console.log(user);
 
   return (
     <div className="App">
       <header className="App-header">
         <SignOut />
+        {user ? <UsersOnline /> : <p>Hi</p>}
       </header>
 
       <section>
@@ -61,9 +62,36 @@ function SignIn() {
 
 function SignOut() {
   return auth.currentUser && (
-    <button className="sign-out" onClick={() => auth.signOut()}>Sign Out</button>)
+    <button className="sign-out" onClick={() => { auth.signOut(); logOutStatus(auth.currentUser.uid); }}>Sign Out</button>)
 };
 
+// shows when users are online and updates whenever someone is not online
+function UsersOnline() {
+  const users_dbRef = firestore.collection('userOnline');
+  const query = users_dbRef.where("online", "==", true);
+
+  const [users] = useCollectionData(query, { idField: 'id' });
+
+  let online = 0;
+
+  console.log(users);
+
+
+  try {
+    online = Object.keys(users).length;
+    console.log(online);
+  }
+  catch {
+    console.log("not there yet");
+  }
+
+  return (
+    <h1 style={{ color: "white" }}>Online: {online} </h1>
+  )
+}
+
+
+//logs when user is connected to app. 
 function logStatus(user) {
   const users_dbRef = firestore.collection('userOnline');
   users_dbRef.doc(user).set({
@@ -72,6 +100,7 @@ function logStatus(user) {
   });
 }
 
+//logs when user's window is closed to show offline status
 function logOutStatus(user) {
   const users_dbRef = firestore.collection('userOnline');
   users_dbRef.doc(user).set({
@@ -121,7 +150,6 @@ function ChatRoom() {
         {messages && messages.map(msg => <MessageComp key={msg.id} message={msg} />)}
         <div ref={dummy}></div>
       </div>
-
       <form onSubmit={sendMessage}>
         <input value={formValue} onChange={(e) => setFormValue(e.target.value)} />
         <button type="submit">send</button>
