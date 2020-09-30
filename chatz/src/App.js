@@ -113,6 +113,7 @@ function ChatRoom() {
 
   React.useEffect(() => {
     window.addEventListener("beforeunload", function (e) {
+      alert("STOP!");
       logOutStatus(auth.currentUser.uid);
     }, false);
   });
